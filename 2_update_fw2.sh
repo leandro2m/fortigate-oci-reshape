@@ -1,11 +1,8 @@
 #!/bin/bash
 # =============================================================================
-# Reshape FW2 — FortiGate Passive
+# Reshape — FortiGate Passive
 # Detach secondary VNICs, reshape to E5.Flex, reattach with original config
 #
-# Usage    : Edit the variables below, then run: ./2_update_fw2.sh
-# Requires : oci cli, jq
-# Backup   : Run ./1_fetch_vnic_info.sh first to generate the backup JSON
 # =============================================================================
 
 # ---------------------------------------------------------------------------
@@ -81,13 +78,11 @@ confirm() {
 # ---------------------------------------------------------------------------
 clear
 echo "╔══════════════════════════════════════════════════════╗"
-printf "║  %-52s║\n" "Reshape FW2 — FortiGate Passive"
+printf "║  %-52s║\n" "Reshape — FortiGate Passive"
 echo "╠══════════════════════════════════════════════════════╣"
 printf "║  VM     : %-43s║\n" "$BACKUP_NAME"
 printf "║  Shape  : %-43s║\n" "$CURRENT_SHAPE → $TARGET_SHAPE ($TARGET_OCPUS OCPU/${TARGET_MEMORY_GB}GB)"
 printf "║  Backup : %-43s║\n" "$BACKUP_FILE"
-echo "╠══════════════════════════════════════════════════════╣"
-printf "║  ⚠️   %-48s║\n" "FW1 (Active) will NOT be touched by this script"
 echo "╠══════════════════════════════════════════════════════╣"
 printf "║  Primary VNIC : %-37s║\n" "$PRIMARY_IP (NOT touched)"
 echo "║  Secondary VNICs to detach → reattach:               ║"
@@ -95,13 +90,8 @@ for V in "${SECONDARY_VNICS[@]}"; do
   printf "║    • %-25s IP: %-20s║\n"     "$(echo "$V" | jq -r '.display_name')"     "$(echo "$V" | jq -r '.private_ip')"
 done
 echo "╠══════════════════════════════════════════════════════╣"
-echo "║  Volumes (not modified):                             ║"
-for VOL in "${VOLUMES[@]}"; do
-  printf "║    • %-25s %s GB %-12s║\n"     "$(echo "$VOL" | jq -r '.display_name' | cut -c1-25)"     "$(echo "$VOL" | jq -r '.size_in_gbs')"     "$(echo "$VOL" | jq -r 'if .is_boot then "[boot]" else "[data]" end')"
-done
-echo "╚══════════════════════════════════════════════════════╝"
 echo ""
-confirm "Proceed with the full shape change workflow?" || { echo "Aborted."; exit 0; }
+confirm "Before you proceed make sure you have backed up the current configuration. Do you want to continue with the workflow?" || { echo "Aborted."; exit 0; }
 
 # ===========================================================================
 # STEP 1 — Validate instance
@@ -124,7 +114,7 @@ log "State    : $LIVE_STATE"
 log "Shape    : $LIVE_SHAPE"
 
 # ===========================================================================
-# STEP 2 — Detach secondary VNICs (using live OCI data)
+# STEP 2 — Detach secondary VNICs
 # ===========================================================================
 header "STEP 2/4 — Detach $SECONDARY_COUNT secondary VNIC(s)"
 echo ""
@@ -193,7 +183,7 @@ for V in "${SECONDARY_VNICS[@]}"; do
   echo ""
 done
 
-echo "  Waiting for instance to settle after all detaches..."
+echo "  Waiting for instance to settle after all detaches...(sleeping 20s)"
 sleep 20
 
 # ===========================================================================
@@ -325,14 +315,8 @@ for V in $(jq -c '.vnics[]' "$BACKUP_FILE"); do
   printf "║    • %-25s IP: %-20s║\n"     "$(echo "$V" | jq -r '.display_name')"     "$(echo "$V" | jq -r '.private_ip')"
 done
 echo "╠══════════════════════════════════════════════════════╣"
-echo "║  Expected Volumes:                                   ║"
-for VOL in "${VOLUMES[@]}"; do
-  printf "║    • %-25s %s GB %-12s║\n"     "$(echo "$VOL" | jq -r '.display_name' | cut -c1-25)"     "$(echo "$VOL" | jq -r '.size_in_gbs')"     "$(echo "$VOL" | jq -r 'if .is_boot then "[boot]" else "[data]" end')"
-done
-echo "╠══════════════════════════════════════════════════════╣"
-echo "║  Verify:                                             ║"
-echo "║    □  VM reachable (ping / SSH / FortiGate GUI)      ║"
-echo "║    □  HA sync healthy                                ║"
-echo "║    □  All NICs present with correct IPs              ║"
-echo "║    □  Volumes attached and mounted                   ║"
+echo "║  1.Execute the factory reset on the FortiGate-VM     ║"
+echo "║  2. Restore the Backup Configuration                 ║"
+echo "║  3. Verify if the HA is synchronized.                ║"
+echo "║                                                      ║"
 echo "╚══════════════════════════════════════════════════════╝"
