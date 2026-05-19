@@ -10,7 +10,7 @@
 # ---------------------------------------------------------------------------
 # ⚙️  Configuration — edit these variables before running
 # ---------------------------------------------------------------------------
-INSTANCE_OCID="ocid1.instance.oc1.iad.anuwcljtctshpiycyyhkt7pdjcjk7tqdawje5ovh6uekxdinx42rxezcu3oq"
+INSTANCE_OCID="ocid1.instance.oc1.sa-bogota-1.anrgcljrskjhcsqcs23dyd4rbyxqjhlerqhwzf5famwribdbrkja4yfw5ota"
 TARGET_SHAPE="VM.Standard.E5.Flex"
 TARGET_OCPUS=4
 TARGET_MEMORY_GB=64
