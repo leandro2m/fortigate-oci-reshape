@@ -11,8 +11,8 @@
 # ⚙️  Instance OCIDs to process
 # ---------------------------------------------------------------------------
 INSTANCE_OCIDS=(
-  "ocid1.instance.oc1.iad.anuwcljtctshpiycq7pbwln7hpgcdmf6t3ewogp5hget3d6tzbnqljaa6pyq"   # FW1 - Active
-  "ocid1.instance.oc1.iad.anuwcljtctshpiycozu4p5boirdkweobubugjrlrjehxtinlyeeiqusiyvoq"   # FW2 - Passive
+  "ocid.FortiGate.VM.Active"   # FW1 - Active
+  "ocid.FortiGate.VM.Passive"   # FW2 - Passive
 )
 
 # ---------------------------------------------------------------------------
