@@ -10,7 +10,7 @@
 # ---------------------------------------------------------------------------
 # ⚙️  Configuration — edit these variables before running
 # ---------------------------------------------------------------------------
-INSTANCE_OCID="ocid1.instance.oc1.sa-bogota-1.anrgcljrskjhcsqczsflzsmrdufioxq5pb7m6cbu5fvldpj7sc7vkxeto7fa"
+INSTANCE_OCID="FortiGate-VM FW2 OCID here"  
 TARGET_SHAPE="VM.Standard.E5.Flex"
 TARGET_OCPUS=4
 TARGET_MEMORY_GB=64

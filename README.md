@@ -39,8 +39,8 @@ Oracle Cloud does not allow changing the shape (VM type) of an instance that has
 
 | VM | Role | OCID |
 |---|---|---|
-| AT-BOG-PRD-CMP-FW2 | FortiGate Passive | `ocid1.instance.oc1.iad.anuwcljtctshpiycozu4p5boirdkweobubugjrlrjehxtinlyeeiqusiyvoq` |
-| AT-BOG-PRD-CMP-FW1 | FortiGate Active  | `ocid1.instance.oc1.iad.anuwcljtctshpiycq7pbwln7hpgcdmf6t3ewogp5hget3d6tzbnqljaa6pyq` |
+| AT-BOG-PRD-CMP-FW2 | FortiGate Passive | `OCID` |
+| AT-BOG-PRD-CMP-FW1 | FortiGate Active  | `OCID` |
 
 ---
 
