@@ -134,8 +134,6 @@ Expected output — both nodes must show `in-sync`:
   AT-BOG-PRD-CMP-FW2(updated): in-sync
 ```
 
-❌ **Do not proceed** if FW2 shows `out-of-sync`. Resolve the HA sync issue first.
-
 ---
 
 ### PHASE 3 — Fetch OCI VNIC and Volume Configuration
