@@ -32,7 +32,7 @@ Oracle Cloud does not allow changing the shape (VM type) of an instance that has
 | IAM permissions | `manage instance-family` and `manage virtual-network-family` in the target compartment |
 | OCI Cloud Shell | Recommended — CLI and jq are pre-installed |
 | FortiGate access | SSH or GUI access to both FW1 and FW2 before starting |
-| Local admin account | A local username/password admin account (no MFA) must exist on both FW1 and FW2 **before starting** — required to recover console access if MFA blocks login after configuration restore |
+| Local admin account | A local username/password admin account (no MFA) must exist on both FW1 and FW2 **before starting** — required to recover console access if MFA blocks login after VM reshape |
 
 ---
 
@@ -70,7 +70,7 @@ Each FortiGate VM has 4 VNICs. The primary (mgmt) is never touched. The 3 second
 >
 > If your FortiGate configuration has **MFA (Multi-Factor Authentication) enabled**, you **will lose console access** after the factory reset and configuration restore unless a local-only administrator account exists.
 >
-> After `execute factoryreset keepvmlicense`, the firewall boots with factory defaults — no MFA, no external authentication. When you restore the original configuration, MFA is re-enabled. If your only admin account requires MFA and the MFA provider is unreachable or the token is unavailable, **you are locked out of the FortiGate console**.
+> After the reattachment of the NICs, it requires to have access to the local interface of the FortiGAte to execute the command `execute factoryreset keepvmlicense`,. If you don't have local admin account without MFA **you are locked out of the FortiGate console**.
 >
 > **Before running any script**, create a dedicated local administrator account with a username and password only (no MFA) on both FW1 and FW2:
 
@@ -179,9 +179,7 @@ Expected duration: **15–25 minutes**
 
 ### PHASE 5 — Factory Reset FW2 (Keeping VM License)
 
-After the reattachment of the NICs, you need local console access to the FortiGate to execute `execute factoryreset keepvmlicense`. If you don't have a local admin account that bypasses MFA, **you are locked out of the FortiGate console**.
-
-Connect to **FW2 via SSH or OCI Serial Console** and run:
+After the reshape completes and FW2 is back in RUNNING state, connect to **FW2 via SSH or OCI Serial Console** and run:
 
 ```
 execute factoryreset keepvmlicense
@@ -259,9 +257,7 @@ Expected duration: **15–25 minutes**
 
 ### PHASE 9 — Factory Reset FW1 (Keeping VM License)
 
-After the reattachment of the NICs, you need local console access to the FortiGate to execute `execute factoryreset keepvmlicense`. If you don't have a local admin account that bypasses MFA, **you are locked out of the FortiGate console**.
-
-Connect to **FW1 via SSH or OCI Serial Console** and run:
+After the FW1 reshape completes, connect to **FW1 via SSH or OCI Serial Console** and run:
 
 ```
 execute factoryreset keepvmlicense
