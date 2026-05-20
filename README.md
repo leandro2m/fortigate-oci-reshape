@@ -32,6 +32,7 @@ Oracle Cloud does not allow changing the shape (VM type) of an instance that has
 | IAM permissions | `manage instance-family` and `manage virtual-network-family` in the target compartment |
 | OCI Cloud Shell | Recommended — CLI and jq are pre-installed |
 | FortiGate access | SSH or GUI access to both FW1 and FW2 before starting |
+| Local admin account | A local username/password admin account (no MFA) must exist on both FW1 and FW2 **before starting** — required to recover console access if MFA blocks login after configuration restore |
 
 ---
 
@@ -60,6 +61,39 @@ Each FortiGate VM has 4 VNICs. The primary (mgmt) is never touched. The 3 second
 ## Full Procedure
 
 > ⚠️ **Production environment.** Follow each step in order. Do not proceed to the next step until the current one is fully validated.
+
+---
+
+### CRITICAL — Create a Local Administrator Account Before Starting
+
+> 🚨 **Do this before anything else.**
+>
+> If your FortiGate configuration has **MFA (Multi-Factor Authentication) enabled**, you **will lose console access** after the factory reset and configuration restore unless a local-only administrator account exists.
+>
+> After `execute factoryreset keepvmlicense`, the firewall boots with factory defaults — no MFA, no external authentication. When you restore the original configuration, MFA is re-enabled. If your only admin account requires MFA and the MFA provider is unreachable or the token is unavailable, **you are locked out of the FortiGate console**.
+>
+> **Before running any script**, create a dedicated local administrator account with a username and password only (no MFA) on both FW1 and FW2:
+
+#### Via FortiGate CLI (SSH)
+```bash
+config system admin
+    edit "rescue-admin"
+        set password <strong-password>
+        set accprofile "super_admin"
+        set vdom "root"
+    next
+end
+```
+
+#### Via FortiGate GUI
+1. Go to **System → Administrators → Create New**
+2. Set **Type** to `Local User`
+3. Enter a username (e.g., `rescue-admin`) and a strong password
+4. Assign the `super_admin` profile
+5. **Do not enable Two-factor Authentication**
+6. Click **OK**
+
+> ✅ Repeat on both **FW1** and **FW2**. This account will survive the configuration restore and allows console access even when MFA blocks the primary admin account. Remove it after the procedure is complete.
 
 ---
 
@@ -145,7 +179,9 @@ Expected duration: **15–25 minutes**
 
 ### PHASE 5 — Factory Reset FW2 (Keeping VM License)
 
-After the reshape completes and FW2 is back in RUNNING state, connect to **FW2 via SSH or OCI Serial Console** and run:
+After the reattachment of the NICs, you need local console access to the FortiGate to execute `execute factoryreset keepvmlicense`. If you don't have a local admin account that bypasses MFA, **you are locked out of the FortiGate console**.
+
+Connect to **FW2 via SSH or OCI Serial Console** and run:
 
 ```
 execute factoryreset keepvmlicense
@@ -223,7 +259,9 @@ Expected duration: **15–25 minutes**
 
 ### PHASE 9 — Factory Reset FW1 (Keeping VM License)
 
-After the FW1 reshape completes, connect to **FW1 via SSH or OCI Serial Console** and run:
+After the reattachment of the NICs, you need local console access to the FortiGate to execute `execute factoryreset keepvmlicense`. If you don't have a local admin account that bypasses MFA, **you are locked out of the FortiGate console**.
+
+Connect to **FW1 via SSH or OCI Serial Console** and run:
 
 ```
 execute factoryreset keepvmlicense
@@ -279,6 +317,7 @@ Expected — both nodes showing `in-sync`:
 
 | Phase | Action | Executed by |
 |---|---|---|
+| **0** | **Create local admin account (no MFA) on FW1 and FW2** | **FortiGate Admin** |
 | 1 | Backup FortiGate config (FW1 + FW2) | FortiGate Admin |
 | 2 | Verify HA sync is healthy | FortiGate Admin |
 | 3 | Run `1_fetch_vnic_info.sh` | OCI Cloud Shell |
@@ -347,6 +386,7 @@ VNICs are reattached using the backup JSON as the source of truth for private IP
 | `IP address has already been allocated` | VNIC already attached from a previous run | Script skips safely and continues |
 | VNIC appears attached in console but script skips it | OCI propagation delay | Wait 30 seconds and verify in console |
 | FortiGate not responding after reshape | Interface remapping inside FortiOS | Run `execute factoryreset keepvmlicense` and restore config backup |
+| Console access lost after config restore | MFA re-enabled by restored config and MFA provider unreachable | Log in with the local rescue admin account (no MFA). If not created beforehand, use OCI Serial Console and the FortiGate factory-default credentials to create a local admin before re-applying the config |
 | HA out of sync after restore | HA sync still propagating | Wait 3–5 minutes after config restore |
 
 ---
