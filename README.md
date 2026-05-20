@@ -66,7 +66,7 @@ Each FortiGate VM has 4 VNICs. The primary (mgmt) is never touched. The 3 second
 
 ### CRITICAL — Create a Local Administrator Account Before Starting
 
-🚨 **Do this before anything else.**
+🚨 **Very Critical**
 
  If your FortiGate configuration has **MFA (Multi-Factor Authentication) enabled**, you **will lose console access** after the factory reset and configuration restore unless a local-only administrator account exists.
 
