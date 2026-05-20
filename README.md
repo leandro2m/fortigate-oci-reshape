@@ -60,19 +60,19 @@ Each FortiGate VM has 4 VNICs. The primary (mgmt) is never touched. The 3 second
 
 ## Full Procedure
 
-> ⚠️ **Production environment.** Follow each step in order. Do not proceed to the next step until the current one is fully validated.
+⚠️ **Production environment.** Follow each step in order. Do not proceed to the next step until the current one is fully validated.
 
 ---
 
 ### CRITICAL — Create a Local Administrator Account Before Starting
 
-> 🚨 **Do this before anything else.**
->
-> If your FortiGate configuration has **MFA (Multi-Factor Authentication) enabled**, you **will lose console access** after the factory reset and configuration restore unless a local-only administrator account exists.
->
-> After the reattachment of the NICs, it requires to have access to the local interface of the FortiGAte to execute the command `execute factoryreset keepvmlicense`,. If you don't have local admin account without MFA **you are locked out of the FortiGate console**.
->
-> **Before running any script**, create a dedicated local administrator account with a username and password only (no MFA) on both FW1 and FW2:
+🚨 **Do this before anything else.**
+
+ If your FortiGate configuration has **MFA (Multi-Factor Authentication) enabled**, you **will lose console access** after the factory reset and configuration restore unless a local-only administrator account exists.
+
+ After the reattachment of the NICs, it requires to have access to the local interface of the FortiGAte to execute the command `execute factoryreset keepvmlicense`,. If you don't have local admin account without MFA **you are locked out of the FortiGate console**.
+
+**Before running any script**, create a dedicated local administrator account with a username and password only (no MFA) on both FW1 and FW2:
 
 #### Via FortiGate CLI (SSH)
 ```bash
@@ -93,7 +93,7 @@ end
 5. **Do not enable Two-factor Authentication**
 6. Click **OK**
 
-> ✅ Repeat on both **FW1** and **FW2**. This account will survive the configuration restore and allows console access even when MFA blocks the primary admin account. Remove it after the procedure is complete.
+✅ Repeat on both **FW1** and **FW2**. This account will survive the configuration restore and allows console access even when MFA blocks the primary admin account. Remove it after the procedure is complete.
 
 ---
 
@@ -113,9 +113,9 @@ Before making any changes, back up the full configuration of **both** firewalls.
 execute backup config tftp <filename.conf> <tftp_server_ip>
 ```
 
-> 💾 Store the backup files in a safe location before proceeding. Label them clearly:
-> - `FW1_backup_<date>.conf`
-> - `FW2_backup_<date>.conf`
+💾 Store the backup files in a safe location before proceeding. Label them clearly:
+  - `FW1_backup_<date>.conf`
+  - `FW2_backup_<date>.conf`
 
 ---
 
@@ -134,7 +134,7 @@ Expected output — both nodes must show `in-sync`:
   AT-BOG-PRD-CMP-FW2(updated): in-sync
 ```
 
-> ❌ **Do not proceed** if FW2 shows `out-of-sync`. Resolve the HA sync issue first.
+❌ **Do not proceed** if FW2 shows `out-of-sync`. Resolve the HA sync issue first.
 
 ---
 
@@ -185,9 +185,9 @@ After the reshape completes and FW2 is back in RUNNING state, connect to **FW2 v
 execute factoryreset keepvmlicense
 ```
 
-> ⚠️ This command resets the FortiGate OS configuration to factory defaults while retaining the OCI VM license. The firewall will reboot automatically.
->
-> This step is required after a reshape so that FortiGate can re-detect the new virtual hardware and correctly re-map its internal port assignments.
+⚠️ This command resets the FortiGate OS configuration to factory defaults while retaining the OCI VM license. The firewall will reboot automatically.
+
+This step is required after a reshape so that FortiGate can re-detect the new virtual hardware and correctly re-map its internal port assignments.
 
 Wait for FW2 to fully reboot before proceeding. This typically takes **3–5 minutes**.
 
@@ -237,13 +237,13 @@ get system ha status
 - [ ] HA sync status shows **in-sync**
 - [ ] Firewall policies and routing restored correctly
 
-> ❌ **Do not proceed to FW1** until all checks above pass.
+❌ **Do not proceed to FW1** until all checks above pass.
 
 ---
 
 ### PHASE 8 — Reshape FW1 (FortiGate Active)
 
-> ⚠️ **Traffic impact:** During FW1 reshape, the HA cluster will fail over to FW2. Expect a brief traffic interruption. Confirm FW2 is fully healthy and in-sync before running this step.
+⚠️ **Traffic impact:** During FW1 reshape, the HA cluster will fail over to FW2. Expect a brief traffic interruption. Confirm FW2 is fully healthy and in-sync before running this step.
 
 ```bash
 ./3_update_fw1.sh
@@ -400,6 +400,3 @@ VNICs are reattached using the backup JSON as the source of truth for private IP
 ## Author
 
 Leandro Momesso
-Manager Cloud Solutions Architect | AWS Tech Alliance Lead
-Fortinet
-lmomesso@fortinet.com
